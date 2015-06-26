@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
+<script src="cscMap.js"></script>
+<script src="cscMap.Map.js"></script>
+<script src="cscMap.Move.js"></script>
+<script>
+$(function(){
+	var map_config = {//当前地图初始信息
+		area : "bg", //地图所在区域
+		zoom : 1, //缩放级别
+		//Center_point : [1790,1220], //中心坐标
+		zoomMaxFn : function(o){
+			o.info({area:"bg",zoom:0});
+		},
+		zoomMinFn : function(o){
+		
+		}
+	};
+	var map_config1 = {//当前地图初始信息
+		area : "hnc", //地图所在区域
+		zoom : 1, //缩放级别
+		//Center_point : [1790,1220], //中心坐标
+		zoomMaxFn : function(o){
+			//o.info({area:"hnc",zoom:0});
+		},
+		zoomMinFn : function(o){
+		
+		}
+	};
+	
+	cscMap.areas = {//地图区域的属性,区域间结构关系,定死或从后台获取
+		"bg" : {
+			map_size:[2600,2000],
+			bg_img_route:"./mapimg/{zoom}/bg_{y}_{x}.jpg",//地图块url结构
+			Center_point:[1300,1000],//默认中心点
+			f_map:"",//父区域
+			z_map:"",//子区域
+			zooms:[//缩放信息
+				{proportion:0.15,bg_size:[200,200]},//{proportion:相对比例,bg_size:背景块大小}
+				{proportion:0.2,bg_size:[200,200]},
+				{proportion:0.3,bg_size:[200,200]},
+				{proportion:0.4,bg_size:[200,200]},
+				{proportion:0.5,bg_size:[200,200]},
+				{proportion:0.6,bg_size:[200,200]},
+				{proportion:0.7,bg_size:[200,200]},
+				{proportion:0.8,bg_size:[200,200]},
+				{proportion:0.9,bg_size:[200,200]},
+				{proportion:1,bg_size:[200,200]}
+			]
+		},
+		"hnc" : {
+			map_size:[2669,2577],
+			bg_img_route:"./hncimg/{zoom}/hnc_{y}_{x}.jpg",
+			Center_point:[1416,1328],
+			f_map:"",
+			z_map:"",
+			zooms:[
+				{proportion:0.25,bg_size:[200,200]},//{proportion:相对比例,bg_size:背景块大小}
+				{proportion:0.50,bg_size:[200,200]},
+				{proportion:1,bg_size:[200,200]}
+			]
+		}
+	};
+	
+	
+	var thismap = new cscMap.Map("#map_main");//实例化地图类
+	thismap.info(map_config);//加载地图
+	
+	thismap.Click(function(e){//单击事件API,事件参数为e
+		console.log(this.getMousePoint(e));//获取事件地址坐标 this.getMousePoint(e) 等价于 e.Point
+		$("#msg_t1 div:eq(3)").html("点击的坐标位置为：" + e.Point + " ("+e.zoom+")");
+	})
+	
+	window.thismap = thismap;//地图对像抛给全局对像;
+	var thismap1 = new cscMap.Map("#map_main1");
+	thismap1.info(map_config1);//加载地图
+	window.thismap1 = thismap1;//地图对像抛给全局对像;
+	
+	
+	document.onselectstart=new Function('event.returnValue=false;');
+	document.execCommand("BackgroundImageCache",false,true)
+})
+
+//放缩事件
+function zoom_(a){
+	var zoom = thismap.config.zoom + a,
+		area = thismap.config.area;
+	if(cscMap.areas[thismap.config.area].zooms[zoom]){
+		thismap.setZoom(zoom);
+	}
+}
+function mapto(){
+    var point = $("#comm").find("input[name='point']").val().split(",");
+    var zoom = $("#tozoom").val()-0;
+    thismap.setZoom(zoom,point);
+}
+
+</script>
+<style>
+* {padding:0; margin:0;}
+#move_box {position:absolute;}
+.map_bg_imgs {position:absolute; left:0; right:0; width:100%; height:100%; background:url(mapimg/logo.jpg) repeat;}
+.map_bg_imgs img,.map_bg_imgs div { display:block; position:absolute; width:200px; height:200px;}
+.point {width:2px; height:2px; position: absolute; left: 50%; top: 50%; margin-left:-1px;margin-top:-1px; background:#F00; z-index:1000;  }
+</style>
+</head>
+<body>
+	<div id="comm" style="position:absolute; left:40%; top:5px;">
+		<input type="button" onClick="zoom_(1);" value="放大">
+		<input type="button" onClick="zoom_(-1);" value="缩小">
+		<label>中心点</label>
+		<input type="text" name="point" value="" style="width:100px;">
+		<select id="tozoom">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+		</select>
+        <input type="button" value="定位" onclick="mapto();">
+	</div>
+	<div id="map_main" style="position:absolute; width:600px; height:400px; top:50px; right:30px; border:5px solid #F60; overflow:hidden;" tabindex="1000000"></div>
+	
+	<div id="map_main1" style="width:400px; height:300px; position:absolute; top:150px; left:30px; border:1px solid #AAA; overflow:hidden;" tabindex="1000000"></div>
+	
+	<div style="width:50px; height:2000px; background:#EEE;"></div>
+	<div id="msg_t1" style="position:absolute; left:0; top:0;">
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+	</div>
+</body>
+</html>
